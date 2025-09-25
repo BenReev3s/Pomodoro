@@ -1,6 +1,9 @@
 from math import floor
 from tkinter import *
 import math
+import csv
+import datetime
+import os
 # ---------------------------- CONSTANTS ------------------------------- #
 PINK = "#e2979c"
 RED = "#e7305b"
@@ -12,6 +15,13 @@ class PomodoroTimer:
     def __init__(self):
         self.reps = 0
         self.timer = None
+        self.session_type = ""
+
+        if os.path.exists("session_log.csv"):
+            print("File exists")
+        else:
+            with open("sessions.csv", "w") as file:
+                file.write("text")
 
         self.window = Tk()
         self.window.title("Pomodoro")
@@ -84,12 +94,15 @@ class PomodoroTimer:
         if self.reps % 8 == 0:
             self.count_down(long_break_seconds)
             self.title_label.config(text="Long Break", fg= RED )
+            self.session_type = "Long Break"
         elif self.reps % 2 == 0:
             self.count_down(short_break_sec)
             self.title_label.config(text="Short Break", fg=PINK)
+            self.session_type = "Short Break"
         else:
             self.count_down(work_sec)
             self.title_label.config(text="Work Time", fg=GREEN)
+            self.session_type = "Work Time"
 
     # ---------------------------- COUNTDOWN MECHANISM ------------------------------- #
     def count_down(self, count):
@@ -107,6 +120,10 @@ class PomodoroTimer:
             for i in range (completed_work_sessions):
                 mark += "✓"
             self.check_mark.config(text = mark)
+            date_time = datetime.datetime.now()
+            date = date_time.date()
+            time = date_time.time()
+
 
     # ---------------------------- UI SETUP ------------------------------- #
 
