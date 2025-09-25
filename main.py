@@ -7,12 +7,6 @@ RED = "#e7305b"
 GREEN = "#9bdeac"
 YELLOW = "#f7f5dd"
 FONT_NAME = "Courier"
-WORK_MIN = 25
-SHORT_BREAK_MIN = 5
-LONG_BREAK_MIN = 20
-reps = 0
-timer = None
-
 
 class PomodoroTimer:
     def __init__(self):
@@ -43,14 +37,14 @@ class PomodoroTimer:
         Label(self.settings, text="Work (mins)", bg=YELLOW).grid(column=0, row=0)
         self.work_input =Spinbox(self.settings, from_=1, to=120, width=5)
         self.work_input.grid(column=1, row=0)
-        self.work_input.insert(0, 25)
+        self.work_input.insert(0, 24)
 
         Label(self.settings, text="Short Break", bg=YELLOW).grid(column=0, row=1)
         self.short_input = Spinbox(self.settings, from_=1, to=120, width=5)
         self.short_input.grid(column=1, row=1)
         self.short_input.insert(0, 5)
 
-        Label(self.settings, text="Short Break", bg=YELLOW).grid(column=0, row=2)
+        Label(self.settings, text="Long Break", bg=YELLOW).grid(column=0, row=2)
         self.long_input = Spinbox(self.settings, from_=1, to=120, width=5)
         self.long_input.grid(column=1, row=2)
         self.long_input.insert(0, 20)
@@ -72,16 +66,20 @@ class PomodoroTimer:
         self.canvas.itemconfig(self.timer_text, text="00:00")
         self.title_label.config(text="Timer", fg=GREEN)
         self.check_mark.config(text="")
+        self.work_input.config(state="normal")
+        self.short_input.config(state="normal")
+        self.long_input.config(state="normal")
         self.reps = 0
 
     # ---------------------------- TIMER MECHANISM ------------------------------- #
     def start_timer(self):
-
         self. reps += 1
-
-        work_sec = 1 * 60
-        short_break_sec = 1 * 60
-        long_break_seconds = LONG_BREAK_MIN * 60
+        work_sec = int(self.work_input.get()) * 60
+        short_break_sec = int(self.short_input.get()) * 60
+        long_break_seconds = int(self.long_input.get()) * 60
+        self.work_input.config(state="disabled")
+        self.short_input.config(state="disabled")
+        self.long_input.config(state="disabled")
 
         if self.reps % 8 == 0:
             self.count_down(long_break_seconds)
