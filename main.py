@@ -3,7 +3,8 @@ from tkinter import *
 import math
 import csv
 import datetime
-import os
+from pathlib import Path
+import pandas
 # ---------------------------- CONSTANTS ------------------------------- #
 PINK = "#e2979c"
 RED = "#e7305b"
@@ -15,13 +16,14 @@ class PomodoroTimer:
     def __init__(self):
         self.reps = 0
         self.timer = None
-        self.session_type = ""
+        self.session_type = None
+        self.last_session_type = None
 
-        if os.path.exists("session_log.csv"):
-            print("File exists")
-        else:
-            with open("sessions.csv", "w") as file:
-                file.write("text")
+        log_file = Path("session_log.csv")
+        if not log_file.exists():
+            with open(log_file, mode="w", newline="") as file:
+                writer = csv.writer(file)
+                writer.writerow(["date", "time", "session_type", "duration"])
 
         self.window = Tk()
         self.window.title("Pomodoro")
@@ -67,6 +69,9 @@ class PomodoroTimer:
         self.reset_btn = Button(text="Reset", highlightthickness=0, command=self.timer_reset)
         self.reset_btn.grid(column=2, row=3)
 
+        self.stats_btn = Button(text="Show Stats", highlightthickness=0, command=self.show_stats)
+        self.stats_btn.grid(column=1, row =4)
+
         self.canvas.grid(column=1, row=2)
 
         self.window.mainloop()
@@ -84,6 +89,7 @@ class PomodoroTimer:
     # ---------------------------- TIMER MECHANISM ------------------------------- #
     def start_timer(self):
         self. reps += 1
+        self.last_session_type = self.session_type
         work_sec = int(self.work_input.get()) * 60
         short_break_sec = int(self.short_input.get()) * 60
         long_break_seconds = int(self.long_input.get()) * 60
@@ -102,7 +108,7 @@ class PomodoroTimer:
         else:
             self.count_down(work_sec)
             self.title_label.config(text="Work Time", fg=GREEN)
-            self.session_type = "Work Time"
+            self.session_type = "Work"
 
     # ---------------------------- COUNTDOWN MECHANISM ------------------------------- #
     def count_down(self, count):
@@ -114,15 +120,37 @@ class PomodoroTimer:
             global timer
             timer = self.window.after(1000, self.count_down, count - 1)
         else:
+            date_time = datetime.datetime.now()
+            date = date_time.strftime("%Y-%m-%d")
+            time = date_time.strftime("%H:%M:%S")
+            duration = self.get_duration()
+            with open("session_log.csv", "a") as file:
+                writer = csv.writer(file)
+                writer.writerow([date, time, self.session_type, f"{duration} mins"])
+
             self.start_timer()
             mark = ""
             completed_work_sessions =  floor(self.reps / 2)
             for i in range (completed_work_sessions):
                 mark += "✓"
             self.check_mark.config(text = mark)
-            date_time = datetime.datetime.now()
-            date = date_time.date()
-            time = date_time.time()
+
+    def get_duration(self):
+        if self.session_type == "Work":
+            return int(self.work_input.get())
+        elif self.session_type == "Short Break":
+            return int(self.short_input.get())
+        elif self.session_type == "Long Break":
+            return int(self.short_input.get())
+
+    def show_stats(self):
+        df = pandas.read_csv("session_log.csv")
+        durations = df['duration'].str.replace("mins", "").astype(int)
+        work_sessions = df[df["session_type"] == "Work"]
+        print(work_sessions)
+        total_session_by_date = work_sessions.groupby("date").count()
+        print(total_session_by_date)
+
 
 
     # ---------------------------- UI SETUP ------------------------------- #
