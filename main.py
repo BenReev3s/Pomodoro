@@ -30,19 +30,40 @@ class PomodoroTimer:
 
         self.title_label = Label(text="Timer")
         self.title_label.config(fg=GREEN, font=(FONT_NAME, 28, "bold"), bg=YELLOW)
-        self.title_label.grid(column=1, row=0)
+        self.title_label.grid(column=1, row=1)
 
         self.check_mark = Label()
         self.check_mark.config(fg=GREEN, bg=YELLOW)
         self.check_mark.grid(column=1, row=3)
 
+        self.settings = LabelFrame(self.window, text="settings", bg=YELLOW, font=(FONT_NAME, 12, "bold"))
+        self.settings.grid(column=0, row=0, columnspan=3, pady=10)
+
+        #--- Timer configurations---
+        Label(self.settings, text="Work (mins)", bg=YELLOW).grid(column=0, row=0)
+        self.work_input =Spinbox(self.settings, from_=1, to=120, width=5)
+        self.work_input.grid(column=1, row=0)
+        self.work_input.insert(0, 25)
+
+        Label(self.settings, text="Short Break", bg=YELLOW).grid(column=0, row=1)
+        self.short_input = Spinbox(self.settings, from_=1, to=120, width=5)
+        self.short_input.grid(column=1, row=1)
+        self.short_input.insert(0, 5)
+
+        Label(self.settings, text="Short Break", bg=YELLOW).grid(column=0, row=2)
+        self.long_input = Spinbox(self.settings, from_=1, to=120, width=5)
+        self.long_input.grid(column=1, row=2)
+        self.long_input.insert(0, 20)
+
+        #-- buttons ---
+
         self.start_btn = Button(text="Start", highlightthickness=0, command=self.start_timer)
-        self.start_btn.grid(column=0, row=2)
+        self.start_btn.grid(column=0, row=3)
 
         self.reset_btn = Button(text="Reset", highlightthickness=0, command=self.timer_reset)
-        self.reset_btn.grid(column=2, row=2)
+        self.reset_btn.grid(column=2, row=3)
 
-        self.canvas.grid(column=1, row=1)
+        self.canvas.grid(column=1, row=2)
 
         self.window.mainloop()
     # ---------------------------- TIMER RESET ------------------------------- #
