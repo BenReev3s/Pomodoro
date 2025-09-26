@@ -15,68 +15,85 @@ YELLOW = "#f7f5dd"
 FONT_NAME = "Courier"
 
 class PomodoroTimer:
-    def __init__(self):
+    def __init__(self, test_mode=False, log_file="session_log.csv"):
         self.reps = 0
         self.timer = None
         self.session_type = None
         self.last_session_type = None
+        self.test_mode = test_mode
 
-        log_file = Path("session_log.csv")
-        if not log_file.exists():
-            with open(log_file, mode="w", newline="") as file:
+        self.log_file = Path("session_log.csv")
+        if not self.log_file.exists():
+            with open(self.log_file, mode="w", newline="") as file:
                 writer = csv.writer(file)
                 writer.writerow(["date", "time", "session_type", "duration"])
 
-        self.window = Tk()
-        self.window.title("Pomodoro")
-        self.window.config(padx=100, pady=50, bg=YELLOW)
+        if self.test_mode:
+            class DummySpinbox:
+                def __init__(self, value):
+                    self.value = value
 
-        self.canvas = Canvas(width=200, height=224, bg=YELLOW, highlightthickness=0)
-        self.img = PhotoImage(file="tomato.png")
-        self.canvas.create_image(103, 112, image=self.img)
-        self.timer_text = self.canvas.create_text(103, 130, text="00.00", fill="white", font=(FONT_NAME, 35, "bold"))
+                def get(self):
+                    return str(self.value)
 
-        self.title_label = Label(text="Timer")
-        self.title_label.config(fg=GREEN, font=(FONT_NAME, 28, "bold"), bg=YELLOW)
-        self.title_label.grid(column=1, row=1)
+                def insert(self, index, value):
+                    self.value = value
 
-        self.check_mark = Label()
-        self.check_mark.config(fg=GREEN, bg=YELLOW)
-        self.check_mark.grid(column=1, row=3)
+            self.work_input = DummySpinbox(25)
+            self.short_input = DummySpinbox(5)
+            self.long_input = DummySpinbox(20)
 
-        self.settings = LabelFrame(self.window, text="settings", bg=YELLOW, font=(FONT_NAME, 12, "bold"))
-        self.settings.grid(column=0, row=0, columnspan=3, pady=10)
+        else:
+            self.window = Tk()
+            self.window.title("Pomodoro")
+            self.window.config(padx=100, pady=50, bg=YELLOW)
 
-        # ---------------------------- TIMER CONFIG ------------------------------- #
-        Label(self.settings, text="Work (mins)", bg=YELLOW).grid(column=0, row=0)
-        self.work_input =Spinbox(self.settings, from_=1, to=120, width=5)
-        self.work_input.grid(column=1, row=0)
-        self.work_input.insert(0, 24)
+            self.canvas = Canvas(width=200, height=224, bg=YELLOW, highlightthickness=0)
+            self.img = PhotoImage(file="tomato.png")
+            self.canvas.create_image(103, 112, image=self.img)
+            self.timer_text = self.canvas.create_text(103, 130, text="00.00", fill="white", font=(FONT_NAME, 35, "bold"))
 
-        Label(self.settings, text="Short Break", bg=YELLOW).grid(column=0, row=1)
-        self.short_input = Spinbox(self.settings, from_=1, to=120, width=5)
-        self.short_input.grid(column=1, row=1)
-        self.short_input.insert(0, 5)
+            self.title_label = Label(text="Timer")
+            self.title_label.config(fg=GREEN, font=(FONT_NAME, 28, "bold"), bg=YELLOW)
+            self.title_label.grid(column=1, row=1)
 
-        Label(self.settings, text="Long Break", bg=YELLOW).grid(column=0, row=2)
-        self.long_input = Spinbox(self.settings, from_=1, to=120, width=5)
-        self.long_input.grid(column=1, row=2)
-        self.long_input.insert(0, 20)
+            self.check_mark = Label()
+            self.check_mark.config(fg=GREEN, bg=YELLOW)
+            self.check_mark.grid(column=1, row=3)
 
-        # ---------------------------- BUTTONS ------------------------------- #
+            self.settings = LabelFrame(self.window, text="settings", bg=YELLOW, font=(FONT_NAME, 12, "bold"))
+            self.settings.grid(column=0, row=0, columnspan=3, pady=10)
 
-        self.start_btn = Button(text="Start", highlightthickness=0, command=self.start_timer)
-        self.start_btn.grid(column=0, row=3)
+            # ---------------------------- TIMER CONFIG ------------------------------- #
+            Label(self.settings, text="Work (mins)", bg=YELLOW).grid(column=0, row=0)
+            self.work_input =Spinbox(self.settings, from_=1, to=120, width=5)
+            self.work_input.grid(column=1, row=0)
+            self.work_input.insert(0, 24)
 
-        self.reset_btn = Button(text="Reset", highlightthickness=0, command=self.timer_reset)
-        self.reset_btn.grid(column=2, row=3)
+            Label(self.settings, text="Short Break", bg=YELLOW).grid(column=0, row=1)
+            self.short_input = Spinbox(self.settings, from_=1, to=120, width=5)
+            self.short_input.grid(column=1, row=1)
+            self.short_input.insert(0, 5)
 
-        self.stats_btn = Button(text="Show Stats", highlightthickness=0, command=self.show_stats)
-        self.stats_btn.grid(column=1, row =4)
+            Label(self.settings, text="Long Break", bg=YELLOW).grid(column=0, row=2)
+            self.long_input = Spinbox(self.settings, from_=1, to=120, width=5)
+            self.long_input.grid(column=1, row=2)
+            self.long_input.insert(0, 20)
 
-        self.canvas.grid(column=1, row=2)
+            # ---------------------------- BUTTONS ------------------------------- #
 
-        self.window.mainloop()
+            self.start_btn = Button(text="Start", highlightthickness=0, command=self.start_timer)
+            self.start_btn.grid(column=0, row=3)
+
+            self.reset_btn = Button(text="Reset", highlightthickness=0, command=self.timer_reset)
+            self.reset_btn.grid(column=2, row=3)
+
+            self.stats_btn = Button(text="Show Stats", highlightthickness=0, command=self.show_stats)
+            self.stats_btn.grid(column=1, row =4)
+
+            self.canvas.grid(column=1, row=2)
+
+            self.window.mainloop()
     # ---------------------------- TIMER RESET ------------------------------- #
     def timer_reset(self):
         self.window.after_cancel(timer)
