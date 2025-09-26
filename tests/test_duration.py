@@ -11,4 +11,4 @@ def test_get_duration(tmp_path):
     app.work_input.insert(0, "25")
     result = app.get_duration()
     print("DEBUG → get_duration() returned:", result)
-
+    assert result == 25
