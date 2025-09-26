@@ -47,7 +47,7 @@ class PomodoroTimer:
         self.settings = LabelFrame(self.window, text="settings", bg=YELLOW, font=(FONT_NAME, 12, "bold"))
         self.settings.grid(column=0, row=0, columnspan=3, pady=10)
 
-        #--- Timer configurations---
+        # ---------------------------- TIMER CONFIG ------------------------------- #
         Label(self.settings, text="Work (mins)", bg=YELLOW).grid(column=0, row=0)
         self.work_input =Spinbox(self.settings, from_=1, to=120, width=5)
         self.work_input.grid(column=1, row=0)
@@ -63,7 +63,7 @@ class PomodoroTimer:
         self.long_input.grid(column=1, row=2)
         self.long_input.insert(0, 20)
 
-        #-- buttons ---
+        # ---------------------------- BUTTONS ------------------------------- #
 
         self.start_btn = Button(text="Start", highlightthickness=0, command=self.start_timer)
         self.start_btn.grid(column=0, row=3)
@@ -145,6 +145,7 @@ class PomodoroTimer:
         elif self.session_type == "Long Break":
             return int(self.short_input.get())
 
+    # ---------------------------- STATISTICS ------------------------------- #
     def show_stats(self):
         df = pandas.read_csv("session_log.csv")
         df["duration_minutes"] = df["duration"].str.replace(" mins", "").astype(int)
@@ -173,13 +174,6 @@ class PomodoroTimer:
         canvas.get_tk_widget().pack()
 
         NavigationToolbar2Tk(canvas, win)
-
-
-
-
-
-
-
 
     # ---------------------------- UI SETUP ------------------------------- #
 
