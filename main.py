@@ -145,11 +145,14 @@ class PomodoroTimer:
 
     def show_stats(self):
         df = pandas.read_csv("session_log.csv")
-        durations = df['duration'].str.replace("mins", "").astype(int)
+        durations = df["duration_minutes"] = df["duration"].str.replace(" mins", "").astype(int)
         work_sessions = df[df["session_type"] == "Work"]
-        print(work_sessions)
-        total_session_by_date = work_sessions.groupby("date").count()
-        print(total_session_by_date)
+        total_sessions = work_sessions.groupby("date").size().reset_index(name="work_sessions")
+        total_minutes = work_sessions.groupby("date")["duration_minutes"].sum().reset_index()
+        stats = pandas.merge(total_sessions, total_minutes)
+        print(stats)
+
+
 
 
 
