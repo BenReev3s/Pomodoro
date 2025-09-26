@@ -151,7 +151,7 @@ class PomodoroTimer:
         work_sessions = df[df["session_type"] == "Work"]
 
         total_sessions = work_sessions.groupby("date").size().reset_index(name="work_sessions")
-        total_minutes = work_sessions.groupby("date")["duration_minutes"].sum().reset_index()
+        total_minutes = work_sessions.groupby("date")["duration_minutes"].sum().reset_index(name="total_minutes")
         stats = pandas.merge(total_sessions, total_minutes)
 
         win = Toplevel(self.window)
@@ -164,8 +164,15 @@ class PomodoroTimer:
         ax.bar(stats["date"], stats["total_minutes"], color="green", label="Total Minutes")
         ax.set_xlabel("Date")
         ax.set_ylabel("Total Minutes Worked")
-        ax.set
+        ax.tick_params(axis="x", labelrotation=45)
+        ax.legend()
+        fig.tight_layout()
 
+        canvas = FigureCanvasTkAgg(fig, master=win)
+        canvas.draw()
+        canvas.get_tk_widget().pack()
+
+        NavigationToolbar2Tk(canvas, win)
 
 
 
