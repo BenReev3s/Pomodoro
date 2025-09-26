@@ -160,7 +160,7 @@ class PomodoroTimer:
         elif self.session_type == "Short Break":
             return int(self.short_input.get())
         elif self.session_type == "Long Break":
-            return int(self.short_input.get())
+            return int(self.long_input.get())
 
     # ---------------------------- STATISTICS ------------------------------- #
     def show_stats(self):
