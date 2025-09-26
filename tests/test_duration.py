@@ -9,6 +9,13 @@ def test_get_duration(tmp_path):
     app = PomodoroTimer(test_mode=True, log_file=log_file)
     app.session_type = "Work"
     app.work_input.insert(0, "25")
-    result = app.get_duration()
-    print("DEBUG → get_duration() returned:", result)
-    assert result == 25
+    assert app.get_duration() == 25
+
+    app.session_type = "Short Break"
+    app.work_input.insert(0, "5")
+    assert app.get_duration() == 5
+
+    app.session_type = "Long Break"
+    app.work_input.insert(0, "20")
+    assert app.get_duration() == 20
+
