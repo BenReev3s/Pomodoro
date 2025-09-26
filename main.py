@@ -5,6 +5,8 @@ import csv
 import datetime
 from pathlib import Path
 import pandas
+from matplotlib.figure import Figure
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
 # ---------------------------- CONSTANTS ------------------------------- #
 PINK = "#e2979c"
 RED = "#e7305b"
@@ -145,12 +147,28 @@ class PomodoroTimer:
 
     def show_stats(self):
         df = pandas.read_csv("session_log.csv")
-        durations = df["duration_minutes"] = df["duration"].str.replace(" mins", "").astype(int)
+        df["duration_minutes"] = df["duration"].str.replace(" mins", "").astype(int)
         work_sessions = df[df["session_type"] == "Work"]
+
         total_sessions = work_sessions.groupby("date").size().reset_index(name="work_sessions")
         total_minutes = work_sessions.groupby("date")["duration_minutes"].sum().reset_index()
         stats = pandas.merge(total_sessions, total_minutes)
-        print(stats)
+
+        win = Toplevel(self.window)
+        win.title("Work Stats")
+        win.geometry("720x420")
+
+        fig = Figure(figsize=(7, 4), dpi=100)
+        ax = fig.add_subplot(111)
+
+        ax.bar(stats["date"], stats["total_minutes"], color="green", label="Total Minutes")
+        ax.set_xlabel("Date")
+        ax.set_ylabel("Total Minutes Worked")
+        ax.set
+
+
+
+
 
 
 
