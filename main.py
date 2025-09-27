@@ -221,14 +221,18 @@ class PomodoroTimer:
             return int(self.long_input.get())
 
     # ---------------------------- STATISTICS ------------------------------- #
-    def show_stats(self):
-        df = pandas.read_csv("session_log.csv")
+    def get_stats_dataframe(self):
+        df = pandas.read_csv(self.log_file)
         df["duration_minutes"] = df["duration"].str.replace(" mins", "").astype(int)
         work_sessions = df[df["session_type"] == "Work"]
 
         total_sessions = work_sessions.groupby("date").size().reset_index(name="work_sessions")
         total_minutes = work_sessions.groupby("date")["duration_minutes"].sum().reset_index(name="total_minutes")
-        stats = pandas.merge(total_sessions, total_minutes)
+        return pandas.merge(total_sessions, total_minutes)
+
+    def show_stats(self):
+
+        stats = self.get_stats_dataframe()
 
         win = Toplevel(self.window)
         win.title("Work Stats")

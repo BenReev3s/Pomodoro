@@ -4,6 +4,7 @@ import datetime
 import pytest
 from main import PomodoroTimer
 from pathlib import Path
+import Pandas
 
 def test_get_duration():
     app = PomodoroTimer(test_mode=True,)
@@ -78,7 +79,24 @@ def test_count_down_logging(tmp_path):
     assert rows[1][3].endswith("mins")
     assert duration == "25 mins"
 
+def test_show_stats(tmp_path):
+    log_file = tmp_path / "test.log_csv"
+    with open(log_file, "r") as f:
+        writer = csv.writer(f)
+        writer.writerow(["date", "time", "session_type", "duration"])
+        writer.writerow(["2025-09-25", "10:00:00", "Work", "25 mins"])
+        writer.writerow(["2025-09-25", "11:00:00", "Work", "25 mins"])
+        writer.writerow(["2025-09-26", "09:00:00", "Work", "20 mins"])
+        writer.writerow(["2025-09-26", "09:30:00", "Short Break", "5 mins"])
 
+    app = PomodoroTimer(test_mode=True, log_file=log_file)
+    stats = app.get_stats_dataframe()
+    row_25 = stats[stats["date"] == "2025-09-25"].iloc[0]
+    assert row_25["work_sessions"] == 1
+    assert row_25["total_minutes"] == 50
 
+    row_26 = stats[stats["date"] == "2025-09-26"].iloc[0]
+    assert row_26["work_sessions"] == 1
+    assert row_26["total_minutes"] == 20
 
 
