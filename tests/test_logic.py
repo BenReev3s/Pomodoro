@@ -52,3 +52,15 @@ def test_timer_reset():
     assert app.work_input.state == "normal"
     assert app.short_input.state == "normal"
 
+def test_count_down():
+    app = PomodoroTimer(test_mode=True)
+    app.reps = 2
+    app.count_down(0)
+    assert app.check_mark.cget("text") == "✓"
+
+    app.reps = 4
+    app.count_down(0)
+    assert app.check_mark.cget("text") == "✓✓"
+
+
+

@@ -22,7 +22,7 @@ class PomodoroTimer:
         self.last_session_type = None
         self.test_mode = test_mode
 
-        self.log_file = Path("session_log.csv")
+        self.log_file = Path(log_file)
         if not self.log_file.exists():
             with open(self.log_file, mode="w", newline="") as file:
                 writer = csv.writer(file)
@@ -40,7 +40,7 @@ class PomodoroTimer:
                 def insert(self, index, value):
                     self.value = value
 
-                def config(selfself, **kwargs):
+                def config(self, **kwargs):
                     if "state" in kwargs:
                         self.state = kwargs["state"]
 
@@ -53,12 +53,20 @@ class PomodoroTimer:
             self.short_input = DummySpinbox(5)
             self.long_input = DummySpinbox(20)
 
+            class DummyCanvas:
+                def __init__(self):
+                    self.last_text = None
+                def itemconfig(self, text_id, text=None, **kwargs):
+                    if text is not None:
+                        self.last_text = text
+
             class DummyLabel:
                 def __init__(self):
                     self._text = ""
 
-                def config(self, text="", **kwargs):
-                    self._text = text
+                def config(self, text=None, **kwargs):
+                    if text is not None:
+                        self._text = text
 
                 def cget(self, option):
                     if option == "text":
@@ -67,12 +75,8 @@ class PomodoroTimer:
 
             self.check_mark = DummyLabel()
 
-            class DummyCanvas:
-                def itemconfig(self, *args, **kwargs):
-                    pass
-
             self.canvas = DummyCanvas()
-            self.timer_text = None
+            self.timer_text = "dummy"
             self.title_label = DummyLabel()
 
             return
@@ -182,25 +186,31 @@ class PomodoroTimer:
         count_min = floor(count / 60)
         count_sec = count % 60
 
-        self.canvas.itemconfig(self.timer_text, text=f"{count_min}:{count_sec:02}")
+        # Update the timer text only in GUI mode
+        if not self.test_mode:
+            self.canvas.itemconfig(self.timer_text, text=f"{count_min}:{count_sec:02}")
+
         if count > 0:
-            global timer
-            timer = self.window.after(1000, self.count_down, count - 1)
+            if not self.test_mode:
+                global timer
+                timer = self.window.after(1000, self.count_down, count - 1)
+            return
         else:
             date_time = datetime.datetime.now()
             date = date_time.strftime("%Y-%m-%d")
             time = date_time.strftime("%H:%M:%S")
             duration = self.get_duration()
-            with open("session_log.csv", "a") as file:
+            with open(self.log_file, "a", newline="") as file:
                 writer = csv.writer(file)
                 writer.writerow([date, time, self.session_type, f"{duration} mins"])
 
+            completed = floor(self.reps / 2)
+            mark = "✓" * completed
+            self.check_mark.config(text=mark)
+            if self.test_mode:
+                return
+
             self.start_timer()
-            mark = ""
-            completed_work_sessions =  floor(self.reps / 2)
-            for i in range (completed_work_sessions):
-                mark += "✓"
-            self.check_mark.config(text = mark)
 
     def get_duration(self):
         if self.session_type == "Work":
