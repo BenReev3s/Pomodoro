@@ -32,6 +32,7 @@ class PomodoroTimer:
             class DummySpinbox:
                 def __init__(self, value):
                     self.value = value
+                    self.state = "normal"
 
                 def get(self):
                     return str(self.value)
@@ -43,10 +44,39 @@ class PomodoroTimer:
                     if "state" in kwargs:
                         self.state = kwargs["state"]
 
+                def cget(self, option):
+                    if option == "state":
+                        return self.state
+                    return None
+
             self.work_input = DummySpinbox(25)
             self.short_input = DummySpinbox(5)
             self.long_input = DummySpinbox(20)
+
+            class DummyLabel:
+                def __init__(self):
+                    self._text = ""
+
+                def config(self, text="", **kwargs):
+                    self._text = text
+
+                def cget(self, option):
+                    if option == "text":
+                        return self._text
+                    return None
+
+            self.check_mark = DummyLabel()
+
+            class DummyCanvas:
+                def itemconfig(self, *args, **kwargs):
+                    pass
+
+            self.canvas = DummyCanvas()
+            self.timer_text = None
+            self.title_label = DummyLabel()
+
             return
+
 
         else:
             self.window = Tk()
@@ -101,14 +131,17 @@ class PomodoroTimer:
             self.window.mainloop()
     # ---------------------------- TIMER RESET ------------------------------- #
     def timer_reset(self):
-        self.window.after_cancel(timer)
-        self.canvas.itemconfig(self.timer_text, text="00:00")
-        self.title_label.config(text="Timer", fg=GREEN)
-        self.check_mark.config(text="")
-        self.work_input.config(state="normal")
-        self.short_input.config(state="normal")
-        self.long_input.config(state="normal")
-        self.reps = 0
+     if not self.test_mode:
+         self.window.after_cancel(timer)
+         self.canvas.itemconfig(self.timer_text, text="00:00")
+         self.title_label.config(text="Timer", fg=GREEN)
+
+     self.session_type = None
+     self.check_mark.config(text="")
+     self.work_input.config(state="normal")
+     self.short_input.config(state="normal")
+     self.long_input.config(state="normal")
+     self.reps = 0
 
     # ---------------------------- TIMER MECHANISM ------------------------------- #
     def start_timer(self):
