@@ -39,9 +39,14 @@ class PomodoroTimer:
                 def insert(self, index, value):
                     self.value = value
 
+                def config(selfself, **kwargs):
+                    if "state" in kwargs:
+                        self.state = kwargs["state"]
+
             self.work_input = DummySpinbox(25)
             self.short_input = DummySpinbox(5)
             self.long_input = DummySpinbox(20)
+            return
 
         else:
             self.window = Tk()
@@ -116,18 +121,28 @@ class PomodoroTimer:
         self.short_input.config(state="disabled")
         self.long_input.config(state="disabled")
 
-        if self.reps % 8 == 0:
-            self.count_down(long_break_seconds)
-            self.title_label.config(text="Long Break", fg= RED )
-            self.session_type = "Long Break"
-        elif self.reps % 2 == 0:
-            self.count_down(short_break_sec)
-            self.title_label.config(text="Short Break", fg=PINK)
-            self.session_type = "Short Break"
+        if self.test_mode:
+            if self.reps % 8 == 0:
+                self.session_type = "Long Break"
+            elif self.reps % 2 == 0:
+                self.session_type = "Short Break"
+            else:
+                self.session_type = "Work"
+            return
         else:
-            self.count_down(work_sec)
-            self.title_label.config(text="Work Time", fg=GREEN)
-            self.session_type = "Work"
+
+            if self.reps % 8 == 0:
+                self.count_down(long_break_seconds)
+                self.title_label.config(text="Long Break", fg= RED )
+                self.session_type = "Long Break"
+            elif self.reps % 2 == 0:
+                self.count_down(short_break_sec)
+                self.title_label.config(text="Short Break", fg=PINK)
+                self.session_type = "Short Break"
+            else:
+                self.count_down(work_sec)
+                self.title_label.config(text="Work Time", fg=GREEN)
+                self.session_type = "Work"
 
     # ---------------------------- COUNTDOWN MECHANISM ------------------------------- #
     def count_down(self, count):

@@ -19,3 +19,17 @@ def test_get_duration(tmp_path):
     app.work_input.insert(0, "20")
     assert app.get_duration() == 20
 
+def test_start_timer(tmp_path):
+    log_file = tmp_path
+    app = PomodoroTimer(test_mode=True, log_file=log_file)
+    app.reps = 0
+    app.start_timer()
+    assert app.session_type == "Work"
+
+    app.reps = 1
+    app.start_timer()
+    assert app.session_type == "Short Break"
+
+    app.reps = 7
+    app.start_timer()
+    assert app.session_type == "Long Break"
