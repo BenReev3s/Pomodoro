@@ -3,10 +3,10 @@ import csv
 import datetime
 import pytest
 from main import PomodoroTimer
+from pathlib import Path
 
-def test_get_duration(tmp_path):
-    log_file = tmp_path / "test_file.csv"
-    app = PomodoroTimer(test_mode=True, log_file=log_file)
+def test_get_duration():
+    app = PomodoroTimer(test_mode=True,)
     app.session_type = "Work"
     app.work_input.insert(0, "25")
     assert app.get_duration() == 25
@@ -19,9 +19,8 @@ def test_get_duration(tmp_path):
     app.work_input.insert(0, "20")
     assert app.get_duration() == 20
 
-def test_start_timer(tmp_path):
-    log_file = tmp_path
-    app = PomodoroTimer(test_mode=True, log_file=log_file)
+def test_start_timer():
+    app = PomodoroTimer(test_mode=True)
     app.reps = 0
     app.start_timer()
     assert app.session_type == "Work"
@@ -52,7 +51,7 @@ def test_timer_reset():
     assert app.work_input.state == "normal"
     assert app.short_input.state == "normal"
 
-def test_count_down():
+def test_count_down_checkmarks():
     app = PomodoroTimer(test_mode=True)
     app.reps = 2
     app.count_down(0)
@@ -61,6 +60,25 @@ def test_count_down():
     app.reps = 4
     app.count_down(0)
     assert app.check_mark.cget("text") == "✓✓"
+
+def test_count_down_logging(tmp_path):
+    log_file = tmp_path / "test_log.csv"
+    app = PomodoroTimer(test_mode=True, log_file=log_file)
+    app.session_type = "Work"
+
+    app.count_down(0)
+    assert log_file.exists()
+    with open(log_file, newline="") as f:
+        rows = list(csv.reader(f))
+
+    duration = rows[1][3]
+
+    assert rows[0] == ["date", "time", "session_type", "duration"]
+    assert rows[1][2] == "Work"
+    assert rows[1][3].endswith("mins")
+    assert duration == "25 mins"
+
+
 
 
 
